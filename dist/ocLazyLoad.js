@@ -8,7 +8,7 @@
 (function (angular, window) {
     'use strict';
 
-    var regModules = ['ng', 'oc.lazyLoad'],
+    var regModules = ['oc.lazyLoad'],
         regInvokes = {},
         regConfigs = [],
         modulesToLoad = [],
@@ -20,7 +20,7 @@
         runBlocks = {},
         justLoaded = [];
 
-    var ocLazyLoad = angular.module('oc.lazyLoad', ['ng']);
+    var ocLazyLoad = angular.module('oc.lazyLoad', []);
 
     ocLazyLoad.provider('$ocLazyLoad', ["$controllerProvider", "$provide", "$compileProvider", "$filterProvider", "$injector", "$animateProvider", function ($controllerProvider, $provide, $compileProvider, $filterProvider, $injector, $animateProvider) {
         var modules = {},
@@ -743,6 +743,16 @@
 
     var bootstrapFct = angular.bootstrap;
     angular.bootstrap = function (element, modules, config) {
+        // Clean state from previous bootstrap
+        regModules = ['ng', 'oc.lazyLoad'];
+        regInvokes = {};
+        regConfigs = [];
+        modulesToLoad = [];
+        realModules = [];
+        recordDeclarations = [];
+        broadcast = angular.noop;
+        runBlocks = {};
+        justLoaded = [];
         // we use slice to make a clean copy
         angular.forEach(modules.slice(), function (module) {
             _addToLoadList(module, true, true);
@@ -885,6 +895,7 @@
 
                 /*
                  The event load or readystatechange doesn't fire in:
+                 - PhantomJS 1.9 (headless webkit browser)
                  - iOS < 6       (default mobile browser)
                  - Android < 4.4 (default mobile browser)
                  - Safari < 6    (desktop browser)
@@ -893,16 +904,20 @@
                     if (!uaCssChecked) {
                         var ua = $window.navigator.userAgent.toLowerCase();
 
-                        // iOS < 6
-                        if (/iP(hone|od|ad)/.test($window.navigator.platform)) {
+                        if (ua.indexOf('phantomjs/1.9') > -1) {
+                            // PhantomJS ~1.9
+                            useCssLoadPatch = true;
+                        } else if (/iP(hone|od|ad)/.test($window.navigator.platform)) {
+                            // iOS < 6
                             var v = $window.navigator.appVersion.match(/OS (\d+)_(\d+)_?(\d+)?/);
                             var iOSVersion = parseFloat([parseInt(v[1], 10), parseInt(v[2], 10), parseInt(v[3] || 0, 10)].join('.'));
                             useCssLoadPatch = iOSVersion < 6;
-                        } else if (ua.indexOf("android") > -1) {
+                        } else if (ua.indexOf('android') > -1) {
                             // Android < 4.4
-                            var androidVersion = parseFloat(ua.slice(ua.indexOf("android") + 8));
+                            var androidVersion = parseFloat(ua.slice(ua.indexOf('android') + 8));
                             useCssLoadPatch = androidVersion < 4.4;
                         } else if (ua.indexOf('safari') > -1) {
+                            // Safari < 6
                             var versionMatch = ua.match(/version\/([\.\d]+)/i);
                             useCssLoadPatch = versionMatch && versionMatch[1] && parseFloat(versionMatch[1]) < 6;
                         }

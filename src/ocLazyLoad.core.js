@@ -1,7 +1,7 @@
 ((angular, window) => {
     'use strict';
 
-    var regModules = ['ng', 'oc.lazyLoad'],
+    var regModules = ['oc.lazyLoad'],
         regInvokes = {},
         regConfigs = [],
         modulesToLoad = [], // modules to load from angular.module or other sources
@@ -11,7 +11,7 @@
         runBlocks = {},
         justLoaded = [];
 
-    var ocLazyLoad = angular.module('oc.lazyLoad', ['ng']);
+    var ocLazyLoad = angular.module('oc.lazyLoad', []);
 
     ocLazyLoad.provider('$ocLazyLoad', function($controllerProvider, $provide, $compileProvider, $filterProvider, $injector, $animateProvider) {
         var modules = {},

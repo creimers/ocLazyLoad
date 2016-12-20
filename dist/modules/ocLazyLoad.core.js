@@ -1,7 +1,7 @@
 (function (angular, window) {
     'use strict';
 
-    var regModules = ['ng', 'oc.lazyLoad'],
+    var regModules = ['oc.lazyLoad'],
         regInvokes = {},
         regConfigs = [],
         modulesToLoad = [],
@@ -13,7 +13,7 @@
         runBlocks = {},
         justLoaded = [];
 
-    var ocLazyLoad = angular.module('oc.lazyLoad', ['ng']);
+    var ocLazyLoad = angular.module('oc.lazyLoad', []);
 
     ocLazyLoad.provider('$ocLazyLoad', ["$controllerProvider", "$provide", "$compileProvider", "$filterProvider", "$injector", "$animateProvider", function ($controllerProvider, $provide, $compileProvider, $filterProvider, $injector, $animateProvider) {
         var modules = {},
@@ -736,6 +736,16 @@
 
     var bootstrapFct = angular.bootstrap;
     angular.bootstrap = function (element, modules, config) {
+        // Clean state from previous bootstrap
+        regModules = ['ng', 'oc.lazyLoad'];
+        regInvokes = {};
+        regConfigs = [];
+        modulesToLoad = [];
+        realModules = [];
+        recordDeclarations = [];
+        broadcast = angular.noop;
+        runBlocks = {};
+        justLoaded = [];
         // we use slice to make a clean copy
         angular.forEach(modules.slice(), function (module) {
             _addToLoadList(module, true, true);
