@@ -33,6 +33,7 @@
   "devDependencies": {
     "bower": "~1.4.1",
     "gulp": "~3.9.0",
+    "jquery": "^2.2.3",
     "gulp-babel": "~5.1.0",
     "gulp-clean": "~0.3.1",
     "gulp-concat": "~2.5.2",
